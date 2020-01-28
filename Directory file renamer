@@ -1,0 +1,65 @@
+#include<iostream>
+#include <windows.h>
+#include <conio.h>
+#include <string>
+
+int main() 
+{
+	/*char Path[MAX_PATH] = "D:\\Test\\*.*"; */
+
+	std::cout << "Enter path to you fales for deliting \"space\" from name" << std::endl;
+	std::string PathN;
+	std::cin >> PathN;
+	PathN += "*.*";
+
+
+	WIN32_FIND_DATA FindData;
+	HANDLE Handle;
+	Handle = FindFirstFile(PathN.c_str(), &FindData);
+
+	FindNextFile(Handle, &FindData);
+	int i = 0;
+
+	std::string OldName;
+	
+	while (FindNextFile(Handle, &FindData))
+	{   
+		std::string Tmp1 = "D:\\Test\\";
+		std::string Tmp2 = "D:\\Test\\";
+
+		OldName = FindData.cFileName;
+		std::string NewName;
+		for (int i = 0; i < OldName.size(); i++)
+		{
+			if (OldName[i] != ' ' && i == 0)
+			{
+				NewName[i] = OldName[i];
+			}
+			else if (i > 0 && OldName[i] != ' ')
+			{
+				NewName += OldName[i];	
+			}
+			else
+			{
+				continue;
+			}
+		}
+
+		Tmp1 += OldName;
+		Tmp2 += NewName;
+
+		int result = MoveFile(Tmp1.c_str(), Tmp2.c_str());
+			
+		if (result == 1)
+			std::cout << "File renamed successfully" << std::endl;
+		else
+			std::cout << "Error renaming file" << std::endl;;
+		
+		i++;
+	}
+
+	CloseHandle(Handle);
+
+	system("pause");
+	return 0;
+}
