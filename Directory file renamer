@@ -3,13 +3,15 @@
 #include <conio.h>
 #include <string>
 
-int main() 
+int main()
 {
 	/*char Path[MAX_PATH] = "D:\\Test\\*.*"; */
 
 	std::cout << "Enter path to you fales for deliting \"space\" from name" << std::endl;
+	std::cout << "Example (D:\\FolderName\\)" << std::endl;
 	std::string PathN;
 	std::cin >> PathN;
+	std::string Path = PathN;
 	PathN += "*.*";
 
 
@@ -21,23 +23,26 @@ int main()
 	int i = 0;
 
 	std::string OldName;
-	
+
 	while (FindNextFile(Handle, &FindData))
-	{   
-		std::string Tmp1 = "D:\\Test\\";
-		std::string Tmp2 = "D:\\Test\\";
+	{
+		std::string Tmp1 = Path; //"D:\\FolderName\\"
+		std::string Tmp2 = Path;
 
 		OldName = FindData.cFileName;
 		std::string NewName;
-		for (int i = 0; i < OldName.size(); i++)
+
+		int SizeName = OldName.size();
+
+		for (int j = 0; j < SizeName; j++)
 		{
-			if (OldName[i] != ' ' && i == 0)
+			if (OldName[j] != ' ' && j == 0)
 			{
-				NewName[i] = OldName[i];
+				NewName += OldName[j];
 			}
-			else if (i > 0 && OldName[i] != ' ')
+			else if (j > 0 && OldName[j] != ' ')
 			{
-				NewName += OldName[i];	
+				NewName += OldName[j];
 			}
 			else
 			{
@@ -49,12 +54,12 @@ int main()
 		Tmp2 += NewName;
 
 		int result = MoveFile(Tmp1.c_str(), Tmp2.c_str());
-			
+
 		if (result == 1)
 			std::cout << "File renamed successfully" << std::endl;
 		else
 			std::cout << "Error renaming file" << std::endl;;
-		
+
 		i++;
 	}
 
