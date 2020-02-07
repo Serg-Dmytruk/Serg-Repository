@@ -1,0 +1,192 @@
+#include <iostream>
+#include <string>
+
+class People
+{
+private:
+	std::string Name;
+	People* Next;
+
+	friend std::istream& operator >> (std::istream& Enter, People&);
+	friend std::ostream& operator<<(std::ostream& Show, const People& Obj);
+public:
+	People()
+	{
+		std::string Name = "Unknown";
+		Next = NULL;
+	}
+	People(std::string SetName)
+	{
+		std::string Name = SetName;
+		Next = NULL;
+	}
+	void SetName(std::string NewName)
+	{
+		this->Name = NewName;
+	}
+	std::string GetName()
+	{
+		return this->Name;
+	}
+	People* GetNext()
+	{
+		return Next;
+	}
+	void SetNext(People* NextPeople)
+	{
+		this->Next = NextPeople;
+	}
+	void ShowName()
+	{
+		std::cout << Name << std::endl;
+	}
+
+};
+
+std::istream& operator >> (std::istream& Enter, People& Obj)
+{
+	std::cout << "Enter player Name" << std::endl;
+	Enter >> Obj.Name;
+	return Enter;
+}
+
+std::ostream& operator<<(std::ostream& Show, const People& Obj)
+{
+	Show << Obj.Name << std::endl;
+	return Show;
+}
+
+class List
+{
+	People* Head;
+	People* Tail;
+	int count;
+public:
+	List()
+	{
+		Head = Tail = 0;
+		count = 0;
+	}
+	void Add(People Obj)
+	{
+		People* Tmp = new People;
+		Tmp->SetName(Obj.GetName());
+		Tmp->SetNext(NULL);
+		count++;
+
+		if (Head == NULL)
+		{
+			Head = Tail = Tmp;
+		}
+		else
+		{
+			Tail->SetNext(Tmp);
+			Tail = Tmp;
+		}
+	}
+	void Uraboros(People Obj)
+	{
+		People* Tmp = new People;
+	}
+
+	void Del()
+	{
+		//delete from start
+		People* Tmp = Head;
+		Head->SetNext(Head->GetNext());
+		Head = Head->GetNext();
+		delete Tmp;
+	}
+	void Del(int Delete)
+	{
+		if (Delete > this->count)
+		{
+			std::cout << "stack overflow" << std::endl;
+		}
+		else
+		{
+			People* Tmp = Head;
+			
+			if (Delete == 0)
+			{
+				Head->SetNext(Head->GetNext());
+				Head = Head->GetNext();
+				delete Tmp;
+			}
+			else
+			{
+				People* Tmp2 = Tmp;
+
+				for (int i = 0; i != Delete; i++)
+				{
+					if (i == Delete - 1)
+					{
+						Tmp2 = Tmp;
+					}
+					Tmp = Tmp->GetNext();
+				}
+
+				Tmp2->SetNext(Tmp->GetNext());
+
+				delete Tmp;
+
+				 
+				system("cls");
+				std::cout << "Remove from Game Player N_ -> " << Delete + 1 << std::endl;
+				
+			}
+		}
+	}
+	void Print()
+	{
+		People* Tmp = Head;
+		while (Tmp != 0)
+		{
+			std::cout << Tmp->GetName() << std::endl;
+			Tmp = Tmp->GetNext();
+		}
+	}
+};
+
+
+int main()
+{
+	People Tmp;
+	List GameList;
+	int GameFildSize = 0;
+
+	std::cout << "Enter Game Fild Size" << std::endl;
+	std::cin >> GameFildSize;
+
+	for (int i = 0; i < GameFildSize; i++)
+	{
+		std::cout << "Enter Player N_" << i + 1 << " - ";
+		std::cin >> Tmp;
+		GameList.Add(Tmp);
+	}
+
+	
+	
+	system("pause");
+	system("cls");
+
+	int DeletePlayer = 0;
+	int a = 0; // - index totgo elementa scho potribno vudaluty z spuska
+	std::cout << " Enter random counter!" << std::endl;
+	std::cin >> DeletePlayer;
+
+	for (int i = 0; i - (DeletePlayer - 1)  < GameFildSize; i++)
+	{
+		if (a == GameFildSize)
+			a = 0;
+
+		a++;
+	}
+
+	GameList.Del(a);
+	std::cout << "New Players list" << std::endl;
+	GameList.Print();
+
+	system("pause");
+	return 0;
+}
