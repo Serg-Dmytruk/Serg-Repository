@@ -1,0 +1,203 @@
+#include<iostream>
+#include<string>
+#include<vector>
+#include <ctime>
+
+#define WorldHeight 10 // висота
+#define WorldWidht 10 //ширина
+
+class Universe // ігровий світ
+{
+protected:
+	std::vector<std::vector<std::string>> World;
+public:
+	Universe()
+	{
+		for (int i = 0; i < WorldHeight; i++)
+		{
+			std::vector<std::string> Tmp;
+			for(int j = 0; j < WorldWidht; j++)
+				Tmp.push_back(" ");
+
+			World.push_back(Tmp);
+		}
+	}
+	void Show()//вивлдить на екран
+	{
+		for (int i = 0; i < WorldHeight; i++)
+		{
+			for (int j = 0; j < WorldWidht; j++)
+				std::cout << World.at(i).at(j);
+
+			std::cout << std::endl;
+		}
+	}
+	void FirstFill() // рандомно наповнює життям світ
+	{
+		int TobeOrNotToBe;
+		srand(time(0));
+		for (int i = 0; i < WorldHeight; i++)
+		{
+			for (int j = 0; j < WorldWidht; j++)
+			{
+				TobeOrNotToBe = rand() % 100 + 1;
+				if (TobeOrNotToBe % 2 == 0)
+					World.at(i).at(j) = "*";
+			}
+		}
+	}
+	std::string GetInfo(int i, int j)//надає інформацію про те чи є хтось ивий в кілітинці
+	{
+		return World.at(i).at(j);
+	}
+	void SetInfo(int i, int j, std::string value)// задає інформацію про одну клітинку
+	{
+		World.at(i).at(j) = value;
+	}
+	Universe& operator=(Universe& Obj) // присвоює значення одного світа інщому
+	{
+		for (int i = 0; i < WorldHeight; i++)
+		{
+			for (int j = 0; j < WorldWidht; j++)
+			{
+				this->World.at(i).at(j) = Obj.World.at(i).at(j);
+			}
+		}
+		return *this;
+	}
+	bool operator == (Universe Obj) // порівнення світів для розуміння чи виведено опимальний варіант розміщення життя
+	{
+		for (int i = 0; i < WorldHeight; i++)
+		{
+			for (int j = 0; j < WorldWidht; j++)
+			{
+				if (this->World.at(i).at(j) != Obj.World.at(i).at(j))
+					return false;
+			}
+		}
+		return true;
+	}
+};
+
+Universe U1; //Ігровий світ
+Universe U2; //Ігровий світ копія для порівняння чи ни знайденна оптимальний варіант розселення
+std::vector<std::vector <int>> NearBy; // вектор найблищих кординат до певної позиції в циклі
+int WhoIsAlive(); // рахує кількість "живих" клітинок
+void FindNearBy(int x, int y);//знаходить кординатої сусідніх клітинок
+int WhoNearByIsLive(int x, int y); //вертає кількість живих сусідів
+void NexrGeneration(); // виводить наступне покоління
+
+int main()
+{
+	U1.FirstFill();
+
+	do
+	{
+		system("cls");
+		U1.Show();
+		U2 = U1;
+		NexrGeneration();
+
+		if (U1 == U2)
+		{
+			std::cout << "Optimal Population For \"Life-Forms\" Detected!" << std::endl;
+			system("pause");
+			exit(0);
+		}
+
+		if (WhoIsAlive() == 0)
+		{
+			std::cout << "Dead World" << std::endl;
+			system("pause");
+			exit(0);
+		}
+
+	} while (true);
+
+	return 0;
+}
+
+int WhoIsAlive()//скільки всього живих у цілому світі
+{
+	int LifeFormCounter = 0;
+	for (int i = 0; i < WorldHeight; i++)
+	{
+		for (int j = 0; j < WorldWidht; j++)
+		{
+			if(U1.GetInfo(i, j) == "*")
+				LifeFormCounter++;
+		}
+	}
+	return LifeFormCounter;
+}
+
+void FindNearBy(int x, int y)//знаходить кординати сусідів до заданої точки
+{
+	NearBy.clear();
+	int i, j;
+	int k = 0;
+	int TmpForVector[8][2];
+
+	for (i = x - 1; i <= x + 1; i++) {
+		for (j = y - 1; j <= y + 1; j++) {
+			if (i == x && j == y) {
+				continue;
+			}
+			TmpForVector[k][0] = i;
+			TmpForVector[k][1] = j;
+			k++;
+		}
+	}
+
+	for (int i1 = 0; i1 < 8; i1++)
+	{
+		std::vector<int> Tmp;
+		for (int j1 = 0; j1 < 2; j1++)
+			Tmp.push_back(TmpForVector[i1][j1]);
+
+		NearBy.push_back(Tmp);
+	}
+}
+
+int WhoNearByIsLive(int x, int y) // повертає кількість жвих сусідів
+{
+	int HowMuchIsLive = 0;
+	
+	FindNearBy(x, y);
+
+	for (int i = 0; i < 8; i++)
+	{
+		if (NearBy.at(i).at(0) < 0 || NearBy.at(i).at(1) < 0)
+			continue;
+		if (NearBy.at(i).at(0) >= WorldHeight || NearBy.at(i).at(1) >= WorldWidht)
+			continue;
+		if (U1.GetInfo(NearBy.at(i).at(0), NearBy.at(i).at(1)) == "*")
+			HowMuchIsLive++;
+	}
+	return HowMuchIsLive;
+}
+
+void NexrGeneration()//виводить нове покоіння
+{
+	int HowMuchLiveNearBy;
+	std::string TmpValue;
+	for (int i = 0; i < WorldHeight; i++)
+	{
+		for (int j = 0; j < WorldWidht; j++)
+		{
+			TmpValue = U2.GetInfo(i, j);
+			HowMuchLiveNearBy = WhoNearByIsLive(i, j);
+
+			if (TmpValue == " ")
+			{
+				if (HowMuchLiveNearBy == 3)
+					U1.SetInfo(i, j, "*");
+			}
+			else
+			{
+				if (HowMuchLiveNearBy < 2 || HowMuchLiveNearBy > 3)
+					U1.SetInfo(i, j, " ");
+			}
+		}
+	}
+}
